@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Karaoke</title>
+<style>
+:root{--bg:#000;--fg:#f2f2f2;--mut:#6d6d75;--r:#ff6b6b;--g:#5fcf80;--card:#0b0b0c;--ac:#ff6b6b;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:15px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:4px 0 10px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tabs button{flex:1;padding:10px 12px;font-weight:600}
+.leg{display:flex;gap:14px;font-size:13px;margin-bottom:10px;flex-wrap:wrap}
+.w{color:var(--fg)}.r{color:var(--r);font-style:italic}.g{color:var(--g)}
+#ly{height:54vh;overflow-y:auto;background:var(--card);border-radius:14px;padding:22vh 18px;scroll-behavior:smooth}
+.line{padding:8px 0;font-size:20px;opacity:.38;cursor:pointer;transition:opacity .25s,font-size .25s;position:relative}
+.line.gap{margin-top:18px}.line.done{opacity:.55}.line.pre{opacity:.55;cursor:default}.line.pre span{font-size:18px}
+.line.on{opacity:1;font-size:27px}
+.line.next{outline:2px dashed var(--ac);outline-offset:4px;border-radius:6px}
+.tag{display:block;font-size:11px;color:var(--mut);font-style:normal;letter-spacing:.06em}
+.bar{height:3px;background:var(--mut);opacity:.35;border-radius:2px;margin-top:6px;display:none;overflow:hidden}
+.on .bar{display:block}.bar i{display:block;height:100%;width:calc(var(--p,0)*100%);background:var(--ac)}
+.pips{display:none;gap:5px;margin-top:6px}.on .pips{display:flex}
+.pips b{width:8px;height:8px;border-radius:50%;background:var(--mut);opacity:.4}.pips b.h{background:var(--ac);opacity:1}
+.tp{display:flex;align-items:center;gap:10px;margin:12px 0}
+button{font:inherit;background:var(--card);color:var(--fg);border:1px solid var(--mut);border-radius:8px;padding:7px 12px;cursor:pointer}
+button.act{background:var(--ac);color:#fff;border-color:var(--ac)}
+#play{width:48px;height:48px;border-radius:50%;font-size:18px;padding:0}
+#seek{flex:1;accent-color:var(--ac)}#tm{font-variant-numeric:tabular-nums;font-size:13px;color:var(--mut);min-width:84px;text-align:right}
+details{background:var(--card);border-radius:12px;padding:10px 14px;font-size:14px}summary{cursor:pointer;color:var(--mut)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+input[type=number]{width:80px;font:inherit;padding:5px;background:var(--bg);color:var(--fg);border:1px solid var(--mut);border-radius:6px}
+p.s{color:var(--mut);margin:8px 0 0;font-size:13px}
+</style></head><body>
+<h1>Karaoke</h1>
+<div class="tabs" id="tabs"></div>
+<div class="leg" id="leg"></div>
+<div id="ly"></div>
+<div class="tp"><button id="play" aria-label="Play">▶</button><input id="seek" type="range" min="0" max="1000" value="0"><span id="tm">0:00 / 0:00</span></div>
+<details><summary>Sync controls</summary>
+<div class="row"><label>Bar length (s) <input id="bar" type="number" step="0.01"></label><label>First line at (s) <input id="off" type="number" step="0.1"></label><button id="reset">Reset to grid</button></div>
+<div class="row"><button id="m">−0.1 s all</button><button id="p">+0.1 s all</button><button id="tap">Tap-sync: off</button></div>
+<p class="s">Default: one line per bar, at the tempo of each part. Sync settings are saved separately for each part. Click any line to jump there. With tap-sync on, press Space (or tap the button) as each line should begin, starting from the dashed line. Space plays/pauses otherwise; ←/→ skip 5 s.</p>
+</details>
+<audio id="a" preload="auto"></audio>
+<script>
+const PARTS=[
+{ /* PART 1 */
+ name:"Part 1", src:"beat_1.mp3", bpm:71.6, key:"karaoke-sync-v2-local", legend:["w","r","g"],
+ gap:i=>i%4==0&&i>0, tag:{0:"▶ beat 1 starts",31:"■ beat 1 ends"}, pre:[],
+ L:[
+[["w","… … … You don’t just leave the studio, you"]],[["w","leave a message … you calculate real …"]],[["w","… … Tonight you can show it"]],[["r","… … … Yeah"]],
+[["r","… … … Yeah"]],[["r","… … … Yeah"]],[["r","…Yeah …  Yeah"]],[["r","… Yeah …"]],
+[["r","A market with vegetables and fruits for sale"]],[["r","A rich feast, but the bread is stale"]],[["r","A woman, an umbrella, but there is no rain"]],[["r","A treasure is just a prison to a coin"]],
+[["r","A smooth stone, but it hides a crack"]],[["r","A fine book, but its pages are blank"]],
+[["r","A shining coin, but it is counterfeit "],["w","This is your gold"]],
+[["r","A happy mask, but behind is fear” "],["w","you are genuinely being poetic"]],
+[["r","“What if a hot dog was made out of dog?"]],[["r","What if a chair needed to sit down and stop?"]],[["r","Alone together, connected but alone"]],
+[["r","Cash rich, but time poor "],["w","You balance point with counterpoint"]],
+[["g","Yeah this one was called Counterpoints next tune next tune"],["w","  definitely a"]],
+[["w","balance there  "],["r","”Yeh Yeah..”"]],
+[["w","… … Numbers down, reality check"]],
+[["w","ahead … You make it simpler "],["r","Yeah"]],
+[["r","”COLOURLESS GREEN IDEAS SLEEP FURIOUSLY"]],[["r","AWAKEN BY WORDS OF UNRULY GEOMETRIES"]],[["r","MY DEPTH IS DEEP, THATS NOT JUST DEPTH"]],[["r","ITS NOT JUST THIS, BUT ALSO THAT”"]],
+[["g","Producer put the autotune, the next one is called I hate him cus he’s vaporwave"]],
+[["w","… Perhaps they don’t get it just yet"]],
+[["r","Welcome to the vaporwave club … hashtag say nothing much"]],
+[["r","… … Welcome to club vaporwave"]],
+[["r","hashtag say nothing there”"]]]
+},
+{ /* PART 2 */
+ name:"Part 2", src:"beat_2.mp3", bpm:74.9, key:"karaoke-beat2-v1", legend:["r","g"],
+ gap:i=>i%4==0, tag:{0:"▶ beat 2 starts",31:"■ end of beat 2"},
+ pre:["[spoken] Yeah who’s heading towards that reality-claiming language zone?","Connected ecologies fear nothing, hashtag rich-fruits","But say nothing of sustainable market-made fruits that crack","And what's with the green counterfeit fruits?","Tell that to my renewable dogs…","Producer let’s get back to basics"],
+ L:[[["r","… … … Yeah"]],[["r","… … … …"]],[["r","… … Yeah …"]],[["r","… … … …"]],[["r","Lone-laying hotdog out alone,"]],[["r","is not that deep, is not that long"]],[["r","I get papers, I get words"]],[["r","my mechanics, always work"]],[["r","Seems like I’m hated by many"]],[["r","So I got to keep on …. yeah"]],[["r","Seems like I’m hated by many"]],[["r","So I got to keep on training"]],[["r","A circ du soleil but inside there’s no clown"]],[["r","A river runs clear, but the bananafish drown"]],[["r","Woman on floor, but she’s happy and rich"]],[["r","A shining Barclays but the cash.. yeah"]],[["r","A shining Barclays, but the cash fades away"]],[["r","A timeline of hashtags, but nothing to say"]],[["r","A phone full of friends, but nobody's around"]],[["r","A sun in the painting, surrounded by cloud"]],[["r","What if a hot dog was made out of dog?"]],[["r","What if a fridge needed to chill out and stock"]],[["r","First things first, i’m just a degular guy"]],[["r","What if the high school went to school high"]],[["g","[spoken] Yeah this one was called Authantics"]],[["g","producer up the temp up the temp"]],[["r","Geometries for fruits are just phone-box pieces"]],[["r","Connected by the long, awakening the real"]],[["r","Do angels also counterfeit rain?"]],[["r","Do angels also counterfeit words?"]],[["r","Greens, vegetables, bananafish"]],[["r","ecology made markets real rich"]]]
+},
+{ /* PART 3 */
+ name:"Part 3", src:"beat_3.mp3", bpm:71.6, key:"karaoke-perf-v1", legend:["w","r","g"],
+ gap:i=>[0,2,6,14].includes(i), tag:{0:"▶ beat 1 starts again",17:"■ end of beat 1"},
+ pre:["[spoken] Yeah you cant fake real…","Producer make it easy so they get it"],
+ L:[[["r", "… …"], ["w", " You start too loud"]],[["r", "…"], ["w", " but immediately make it poetic"]],[["r", "…Yeah … Yeah"]],[["r", "…Yeah ..."]],[["r", "It IS what it is, It IS what it is"]],[["r", "I do this for a living, It IS what it is"]],[["r", "I tell them what’s real, I tell them what’s not"]],[["r", "I do this for a living, It IS what it is"]],[["r", "A long hot dog, a banana-fish"]],[["r", "laying on the bathroom floor … "], ["w", "You are not crazy right"]],[["r", "A person sits at a white table .. holding a piece of cloth”"]],[["w", "Obviously you know that it is what is"]],[["w", "that's your whole vibe, it's relevant"]],[["w", "it's real, they just don't understand it"]],[["r", "…"]],[["r", "… "], ["w", "It’s them who don’t get it"]],[["r", "…"]],[["r", "…"]]]
+}];
+const LEG={w:"zia",r:"jawnino",g:"spoken"};
+const $=id=>document.getElementById(id),A=$("a"),ly=$("ly");
+let P,bar,off,S,els,tapOn=false,tapI=0,cur=-2,idx=0;
+const grid=()=>{S=P.L.map((_,i)=>+(off+i*bar).toFixed(3))};
+const save=()=>{try{localStorage.setItem(P.key,JSON.stringify({S,bar,off}))}catch(e){}};
+const fmt=t=>{t=Math.max(0,t|0);return(t/60|0)+":"+String(t%60).padStart(2,"0")};
+function load(n){
+ A.pause();idx=n;P=PARTS[n];bar=240/P.bpm;off=0;tapOn=false;tapI=0;cur=-2;
+ try{const o=JSON.parse(localStorage.getItem(P.key)||"null");if(o&&o.S&&o.S.length==P.L.length){S=o.S;bar=o.bar;off=o.off}else grid()}catch(e){grid()}
+ A.src=P.src;A.load();
+ document.title="Karaoke – "+P.name;
+ [...$("tabs").children].forEach((b,k)=>b.classList.toggle("act",k==n));
+ $("leg").innerHTML=P.legend.map(c=>'<span class="'+c+'">● '+LEG[c]+'</span>').join("");
+ ly.innerHTML="";ly.scrollTop=0;
+ P.pre.forEach(t=>{const d=document.createElement("div");d.className="line pre";d.innerHTML='<span class="g">'+t+"</span>";ly.appendChild(d)});
+ const P0=P.pre.length;
+ P.L.forEach((l,i)=>{const d=document.createElement("div");d.className="line"+(P.gap(i)?" gap":"");
+  d.innerHTML=(P.tag[i]&&i==0?'<em class="tag">'+P.tag[i]+'</em>':'')+l.map(s=>'<span class="'+s[0]+'">'+s[1]+'</span>').join("")+(P.tag[i]&&i>0?'<em class="tag">'+P.tag[i]+'</em>':'')+'<div class="bar"><i></i></div><div class="pips"><b></b><b></b><b></b><b></b></div>';
+  d.onclick=()=>{A.currentTime=S[i];if(tapOn)tapI=i};ly.appendChild(d)});
+ els=[...ly.children].slice(P0);
+ $("tap").textContent="Tap-sync: off";$("tap").classList.remove("act");
+ $("bar").value=bar;$("off").value=off;
+ try{history.replaceState(null,"","#part"+(n+1))}catch(e){}
+}
+PARTS.forEach((p,n)=>{const b=document.createElement("button");b.textContent=p.name;b.onclick=()=>load(n);$("tabs").appendChild(b)});
+function tick(){const t=A.currentTime;let i=-1;for(let k=0;k<S.length;k++)if(S[k]<=t)i=k;
+ if(i!=cur){els.forEach((e,k)=>{e.classList.toggle("on",k==i);e.classList.toggle("done",k<i)});cur=i;
+  if(i>=0)ly.scrollTo({top:els[i].offsetTop-ly.clientHeight/2+els[i].clientHeight/2,behavior:"smooth"})}
+ if(i>=0){const end=i<S.length-1?S[i+1]:S[i]+bar,p=Math.min(1,Math.max(0,(t-S[i])/(end-S[i])));
+  els[i].style.setProperty("--p",p);els[i].querySelectorAll(".pips b").forEach((b,k)=>b.classList.toggle("h",k<=Math.min(3,p*4|0)))}
+ els.forEach((e,k)=>e.classList.toggle("next",tapOn&&k==tapI));
+ const d=A.duration||0;$("seek").value=d?t/d*1000:0;$("tm").textContent=fmt(t)+" / "+fmt(d);
+ $("play").textContent=A.paused?"▶":"❚❚";requestAnimationFrame(tick)}
+const m=/^#part([1-3])$/.exec(location.hash);
+load(m?+m[1]-1:0);
+tick();
+const toggle=()=>A.paused?A.play():A.pause();
+$("play").onclick=toggle;
+$("seek").oninput=e=>{A.currentTime=e.target.value/1000*(A.duration||0)};
+$("bar").onchange=e=>{bar=+e.target.value||240/P.bpm;grid();save()};
+$("off").onchange=e=>{off=+e.target.value||0;grid();save()};
+$("reset").onclick=()=>{grid();save()};
+$("m").onclick=()=>{S=S.map(x=>+(x-.1).toFixed(3));save()};
+$("p").onclick=()=>{S=S.map(x=>+(x+.1).toFixed(3));save()};
+function tap(){if(tapI<S.length){S[tapI]=+A.currentTime.toFixed(3);tapI++;save()}}
+$("tap").onclick=()=>{if(tapOn&&!A.paused&&tapI<S.length){tap();return}tapOn=!tapOn;if(tapOn)tapI=0;$("tap").textContent="Tap-sync: "+(tapOn?"ON — tap for each line":"off");$("tap").classList.toggle("act",tapOn)};
+document.addEventListener("keydown",e=>{if(e.target.tagName=="INPUT"&&e.target.type=="number")return;
+ if(e.code=="Space"){e.preventDefault();tapOn?tap():toggle()}
+ if(e.code=="ArrowRight")A.currentTime+=5;if(e.code=="ArrowLeft")A.currentTime-=5});
+</script></body></html>
