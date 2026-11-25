@@ -10,7 +10,7 @@ h1{font-size:15px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
 .tabs{display:flex;gap:8px;margin-bottom:12px}
 .tabs button{flex:1;padding:10px 12px;font-weight:600}
 .leg{display:flex;gap:14px;font-size:13px;margin-bottom:10px;flex-wrap:wrap}
-.w{color:var(--fg)}.r{color:var(--r);font-style:italic}.g{color:var(--g)}
+.w{color:var(--fg)}.r{color:var(--r);font-style:italic}.g{color:var(--g)}.a{color:#9a9aa2}
 #ly{height:54vh;overflow-y:auto;background:var(--card);border-radius:14px;padding:22vh 18px;scroll-behavior:smooth}
 .line{padding:8px 0;font-size:20px;opacity:.38;cursor:pointer;transition:opacity .25s,font-size .25s;position:relative}
 .line.gap{margin-top:18px}.line.done{opacity:.55}.line.pre{opacity:.55;cursor:default}.line.pre span{font-size:18px}
@@ -38,14 +38,80 @@ p.s{color:var(--mut);margin:8px 0 0;font-size:13px}
 <div class="tp"><button id="play" aria-label="Play">▶</button><input id="seek" type="range" min="0" max="1000" value="0"><span id="tm">0:00 / 0:00</span></div>
 <details><summary>Sync controls</summary>
 <div class="row"><label>Bar length (s) <input id="bar" type="number" step="0.01"></label><label>First line at (s) <input id="off" type="number" step="0.1"></label><button id="reset">Reset to grid</button></div>
+<div class="row" id="r2"><label>2nd tempo (BPM) <input id="bpm2" type="number" step="0.1"></label><span class="s" style="margin:0">applies from the cookable line onwards</span></div>
 <div class="row"><button id="m">−0.1 s all</button><button id="p">+0.1 s all</button><button id="tap">Tap-sync: off</button></div>
 <p class="s">Default: one line per bar, at the tempo of each part. Sync settings are saved separately for each part. Click any line to jump there. With tap-sync on, press Space (or tap the button) as each line should begin, starting from the dashed line. Space plays/pauses otherwise; ←/→ skip 5 s.</p>
 </details>
 <audio id="a" preload="auto"></audio>
 <script>
 const PARTS=[
+{ /* PART 0 */
+ name:"Studio part 1", src:"studio_1.mp3", bpm:160, bpm2:133, split:7, gapSec:2.9, /* ← pause (s) before "cookable"; change here */ key:"karaoke-studio-v1", legend:["r","a"],
+ gap:i=>i==7, tag:{0:"",14:""}, pre:[],
+ L:[
+[["r","He Cooked"],["a"," He Burnt"]],
+[["r","He Froze"],["a"," He Soaked"]],
+[["r","He Dusty"],["a"," He Stained"]],
+[["r","He Turned Off"],["a"," He Flamed"]],
+[["r","Inside Of"],["a"," OnTopOf"]],
+[["r","On Floor Of"],["a"," InHandOf"]],
+[["r","In Reach Of"],["a"," InSameRoomAs Agent … … … … … … … … … … … …"]],
+[["r","cookable"],["a"," Can be Cooked - Temperature"]],
+[["r","burnable"],["a"," Can be Burnt - Temperature"]],
+[["r","freezable"],["a"," Can be Frozen - Temperature"]],
+[["r","soakable"],["a"," Can be Soaked - Wetness"]],
+[["r","dustyable"],["a"," Can be Dusty"]],
+[["r","stainable"],["a"," Can be Stained - Stain"]],
+[["r","toggleable"],["a"," Can be Toggled"]],
+[["r","sliceable"],["a"," Can be Sliced - Sliced state"]]]
+},
+{ /* STUDIO PART 2 */
+ name:"Studio part 2", src:"studio_2.mp3", bpm:67.23, key:"karaoke-studio2-v1", legend:["w","r","a"],
+ gap:i=>[3,11,15,22,26,32].includes(i), tag:{0:"",33:""}, pre:[],
+ L:[
+[["a","[producer] BLUE… "],["r","Bike lane..barclays"]],
+[["r","bombay..lucozade"]],
+[["a","[2nd] sadboy…smurfman"]],
+[["a","[2nd] blue bin...wasteman.."]],
+[["a","[3rd] it’s fsssst….it’s chhh"]],
+[["a","[3rd] it’s fsssst….it’s ahhhh"]],
+[["w","Just like you, 2nd and 3rd are obsessed with language"]],
+[["w","2nd optimised his for insults, which he calls"]],
+[["w"," the realest part of rap.... he calculates his "]],
+[["w","words carefully.. ‘waste of time’ minus"]],
+[["w"," ‘time’ plus ‘man’ = ‘wasteman’"]],
+[["w","’cockroach’ minus ‘roach’..you get it"]],
+[["w","… recently he’s been tryna find the worst word possible"]],
+[["w","… so when he raps he’s perfectly still"]],
+[["w","calculating… … It’s a strong idea"]],
+[["w","he can get real numbers"],["a","  [producer] The word is… RED"]],
+[["a","[2nd] rash boy.. flared up.."]],
+[["a","[2nd] bus boy.. blood shot"]],
+[["r","bus stop..P12"]],
+[["r","SL...phone box…"]],
+[["a","[3rd] it’s shhhh… it’s sizzz…"]],
+[["a","[3rd] it’s grill… it’s aaaahhh"]],
+[["w","3rd is trying to get back to basics.. he’s subtracted"]],
+[["w"," everything from rap but adlibs.. no lyrics"]],
+[["w","no voice, no flow.. rap minus"]],
+[["w","everything = adlibs"]],
+[["w","it’s relevant, and he’s sure to do numbers with it"]],
+[["a","[producer] The word is…WHITE"]],
+[["a","[3rd] it’s blizz.. it’s cold.."]],
+[["a","[3rd] it’s ice.…it’s brrr…"]],
+[["a","[2nd] milkboy.. ghostface.."]],
+[["a","[2nd] dandruff.. snowflake"]],
+[["r","Angels..Puritan.."]],
+[["r","Blessings..Minimal"]],
+[["w","And you? … You trained to speak the tangible"]],
+[["w","the real.. but you learned to turn it around"]],
+[["w"," into poetry … And that’s not nothing"]],
+[["w","Your mechanics always work.. White for blessings"]],
+[["w","minimal angels"],["a","  [producer] The word is…"]],
+[["a","  [producer] GREEN.. "],["r","[off beat] Sustainable...ecology...renewable..GROWNTOLOGY"]]]
+},
 { /* PART 1 */
- name:"Part 1", src:"beat_1.mp3", bpm:71.6, key:"karaoke-sync-v2-local", legend:["w","r","g"],
+ name:"Performance beat 1", src:"beat_1.mp3", bpm:71.6, key:"karaoke-sync-v2-local", legend:["w","r","g"],
  gap:i=>i%4==0&&i>0, tag:{0:"▶ beat 1 starts",31:"■ beat 1 ends"}, pre:[],
  L:[
 [["w","… … … You don’t just leave the studio, you"]],[["w","leave a message … you calculate real …"]],[["w","… … Tonight you can show it"]],[["r","… … … Yeah"]],
@@ -53,41 +119,42 @@ const PARTS=[
 [["r","A market with vegetables and fruits for sale"]],[["r","A rich feast, but the bread is stale"]],[["r","A woman, an umbrella, but there is no rain"]],[["r","A treasure is just a prison to a coin"]],
 [["r","A smooth stone, but it hides a crack"]],[["r","A fine book, but its pages are blank"]],
 [["r","A shining coin, but it is counterfeit "],["w","This is your gold"]],
-[["r","A happy mask, but behind is fear” "],["w","you are genuinely being poetic"]],
-[["r","“What if a hot dog was made out of dog?"]],[["r","What if a chair needed to sit down and stop?"]],[["r","Alone together, connected but alone"]],
+[["r","A happy mask, but behind is fear "],["w","you are genuinely being poetic"]],
+[["r","What if a hot dog was made out of dog?"]],[["r","What if a chair needed to sit down and stop?"]],[["r","Alone together, connected but alone"]],
 [["r","Cash rich, but time poor "],["w","You balance point with counterpoint"]],
 [["g","Yeah this one was called Counterpoints next tune next tune"],["w","  definitely a"]],
-[["w","balance there  "],["r","”Yeh Yeah..”"]],
+[["w","balance there  "],["r","Yeh Yeah.."]],
 [["w","… … Numbers down, reality check"]],
 [["w","ahead … You make it simpler "],["r","Yeah"]],
-[["r","”COLOURLESS GREEN IDEAS SLEEP FURIOUSLY"]],[["r","AWAKEN BY WORDS OF UNRULY GEOMETRIES"]],[["r","MY DEPTH IS DEEP, THATS NOT JUST DEPTH"]],[["r","ITS NOT JUST THIS, BUT ALSO THAT”"]],
+[["r","COLOURLESS GREEN IDEAS SLEEP FURIOUSLY"]],[["r","AWAKEN BY WORDS OF UNRULY GEOMETRIES"]],[["r","MY DEPTH IS DEEP, THATS NOT JUST DEPTH"]],[["r","ITS NOT JUST THIS, BUT ALSO THAT"]],
 [["g","Producer put the autotune, the next one is called I hate him cus he’s vaporwave"]],
 [["w","… Perhaps they don’t get it just yet"]],
 [["r","Welcome to the vaporwave club … hashtag say nothing much"]],
 [["r","… … Welcome to club vaporwave"]],
-[["r","hashtag say nothing there”"]]]
+[["r","hashtag say nothing there"]]]
 },
 { /* PART 2 */
- name:"Part 2", src:"beat_2.mp3", bpm:74.9, key:"karaoke-beat2-v1", legend:["r","g"],
+ name:"Performance beat 2", src:"beat_2.mp3", bpm:74.9, key:"karaoke-beat2-v1", legend:["r","g"],
  gap:i=>i%4==0, tag:{0:"▶ beat 2 starts",31:"■ end of beat 2"},
  pre:["[spoken] Yeah who’s heading towards that reality-claiming language zone?","Connected ecologies fear nothing, hashtag rich-fruits","But say nothing of sustainable market-made fruits that crack","And what's with the green counterfeit fruits?","Tell that to my renewable dogs…","Producer let’s get back to basics"],
  L:[[["r","… … … Yeah"]],[["r","… … … …"]],[["r","… … Yeah …"]],[["r","… … … …"]],[["r","Lone-laying hotdog out alone,"]],[["r","is not that deep, is not that long"]],[["r","I get papers, I get words"]],[["r","my mechanics, always work"]],[["r","Seems like I’m hated by many"]],[["r","So I got to keep on …. yeah"]],[["r","Seems like I’m hated by many"]],[["r","So I got to keep on training"]],[["r","A circ du soleil but inside there’s no clown"]],[["r","A river runs clear, but the bananafish drown"]],[["r","Woman on floor, but she’s happy and rich"]],[["r","A shining Barclays but the cash.. yeah"]],[["r","A shining Barclays, but the cash fades away"]],[["r","A timeline of hashtags, but nothing to say"]],[["r","A phone full of friends, but nobody's around"]],[["r","A sun in the painting, surrounded by cloud"]],[["r","What if a hot dog was made out of dog?"]],[["r","What if a fridge needed to chill out and stock"]],[["r","First things first, i’m just a degular guy"]],[["r","What if the high school went to school high"]],[["g","[spoken] Yeah this one was called Authantics"]],[["g","producer up the temp up the temp"]],[["r","Geometries for fruits are just phone-box pieces"]],[["r","Connected by the long, awakening the real"]],[["r","Do angels also counterfeit rain?"]],[["r","Do angels also counterfeit words?"]],[["r","Greens, vegetables, bananafish"]],[["r","ecology made markets real rich"]]]
 },
 { /* PART 3 */
- name:"Part 3", src:"beat_3.mp3", bpm:71.6, key:"karaoke-perf-v1", legend:["w","r","g"],
+ name:"Performance beat 1 again", src:"beat_3.mp3", bpm:71.6, key:"karaoke-perf-v1", legend:["w","r","g"],
  gap:i=>[0,2,6,14].includes(i), tag:{0:"▶ beat 1 starts again",17:"■ end of beat 1"},
  pre:["[spoken] Yeah you cant fake real…","Producer make it easy so they get it"],
- L:[[["r", "… …"], ["w", " You start too loud"]],[["r", "…"], ["w", " but immediately make it poetic"]],[["r", "…Yeah … Yeah"]],[["r", "…Yeah ..."]],[["r", "It IS what it is, It IS what it is"]],[["r", "I do this for a living, It IS what it is"]],[["r", "I tell them what’s real, I tell them what’s not"]],[["r", "I do this for a living, It IS what it is"]],[["r", "A long hot dog, a banana-fish"]],[["r", "laying on the bathroom floor … "], ["w", "You are not crazy right"]],[["r", "A person sits at a white table .. holding a piece of cloth”"]],[["w", "Obviously you know that it is what is"]],[["w", "that's your whole vibe, it's relevant"]],[["w", "it's real, they just don't understand it"]],[["r", "…"]],[["r", "… "], ["w", "It’s them who don’t get it"]],[["r", "…"]],[["r", "…"]]]
+ L:[[["r", "… …"], ["w", " You start too loud"]],[["r", "…"], ["w", " but immediately make it poetic"]],[["r", "…Yeah … Yeah"]],[["r", "…Yeah ..."]],[["r", "It IS what it is, It IS what it is"]],[["r", "I do this for a living, It IS what it is"]],[["r", "I tell them what’s real, I tell them what’s not"]],[["r", "I do this for a living, It IS what it is"]],[["r", "A long hot dog, a banana-fish"]],[["r", "laying on the bathroom floor … "], ["w", "You are not crazy right"]],[["r", "A person sits at a white table .. holding a piece of cloth"]],[["w", "Obviously you know that it is what is"]],[["w", "that's your whole vibe, it's relevant"]],[["w", "it's real, they just don't understand it"]],[["r", "…"]],[["r", "… "], ["w", "It’s them who don’t get it"]],[["r", "…"]],[["r", "…"]]]
 }];
-const LEG={w:"zia",r:"jawnino",g:"spoken"};
+const LEG={w:"zia",r:"jawnino",g:"spoken",a:"automated"};
 const $=id=>document.getElementById(id),A=$("a"),ly=$("ly");
-let P,bar,off,S,els,tapOn=false,tapI=0,cur=-2,idx=0;
-const grid=()=>{S=P.L.map((_,i)=>+(off+i*bar).toFixed(3))};
-const save=()=>{try{localStorage.setItem(P.key,JSON.stringify({S,bar,off}))}catch(e){}};
+let P,bar,bar2,off,S,els,tapOn=false,tapI=0,cur=-2,idx=0;
+const grid=()=>{const sp=P.split==null?1e9:P.split;S=P.L.map((_,i)=>+(off+Math.min(i,sp)*bar+Math.max(0,i-sp)*bar2+(i>=sp?(P.gapSec||0):0)).toFixed(3))};
+const barAt=i=>P.split!=null&&i>=P.split?bar2:bar;
+const save=()=>{try{localStorage.setItem(P.key,JSON.stringify({S,bar,bar2,off}))}catch(e){}};
 const fmt=t=>{t=Math.max(0,t|0);return(t/60|0)+":"+String(t%60).padStart(2,"0")};
 function load(n){
- A.pause();idx=n;P=PARTS[n];bar=240/P.bpm;off=0;tapOn=false;tapI=0;cur=-2;
- try{const o=JSON.parse(localStorage.getItem(P.key)||"null");if(o&&o.S&&o.S.length==P.L.length){S=o.S;bar=o.bar;off=o.off}else grid()}catch(e){grid()}
+ A.pause();idx=n;P=PARTS[n];bar=240/P.bpm;bar2=P.split!=null?240/P.bpm2:bar;off=0;tapOn=false;tapI=0;cur=-2;
+ try{const o=JSON.parse(localStorage.getItem(P.key)||"null");if(o&&o.S&&o.S.length==P.L.length){S=o.S;bar=o.bar;off=o.off;if(o.bar2)bar2=o.bar2}else grid()}catch(e){grid()}
  A.src=P.src;A.load();
  document.title="Karaoke – "+P.name;
  [...$("tabs").children].forEach((b,k)=>b.classList.toggle("act",k==n));
@@ -101,24 +168,26 @@ function load(n){
  els=[...ly.children].slice(P0);
  $("tap").textContent="Tap-sync: off";$("tap").classList.remove("act");
  $("bar").value=bar;$("off").value=off;
- try{history.replaceState(null,"","#part"+(n+1))}catch(e){}
+ $("r2").style.display=P.split!=null?"flex":"none";$("bpm2").value=+(240/bar2).toFixed(2);
+ try{history.replaceState(null,"","#part"+n)}catch(e){}
 }
 PARTS.forEach((p,n)=>{const b=document.createElement("button");b.textContent=p.name;b.onclick=()=>load(n);$("tabs").appendChild(b)});
 function tick(){const t=A.currentTime;let i=-1;for(let k=0;k<S.length;k++)if(S[k]<=t)i=k;
  if(i!=cur){els.forEach((e,k)=>{e.classList.toggle("on",k==i);e.classList.toggle("done",k<i)});cur=i;
   if(i>=0)ly.scrollTo({top:els[i].offsetTop-ly.clientHeight/2+els[i].clientHeight/2,behavior:"smooth"})}
- if(i>=0){const end=i<S.length-1?S[i+1]:S[i]+bar,p=Math.min(1,Math.max(0,(t-S[i])/(end-S[i])));
+ if(i>=0){const end=i<S.length-1&&i!=P.split-1?S[i+1]:S[i]+barAt(i),p=Math.min(1,Math.max(0,(t-S[i])/(end-S[i])));
   els[i].style.setProperty("--p",p);els[i].querySelectorAll(".pips b").forEach((b,k)=>b.classList.toggle("h",k<=Math.min(3,p*4|0)))}
  els.forEach((e,k)=>e.classList.toggle("next",tapOn&&k==tapI));
  const d=A.duration||0;$("seek").value=d?t/d*1000:0;$("tm").textContent=fmt(t)+" / "+fmt(d);
  $("play").textContent=A.paused?"▶":"❚❚";requestAnimationFrame(tick)}
-const m=/^#part([1-3])$/.exec(location.hash);
-load(m?+m[1]-1:0);
+const m=/^#part([0-4])$/.exec(location.hash);
+load(m?+m[1]:0);
 tick();
 const toggle=()=>A.paused?A.play():A.pause();
 $("play").onclick=toggle;
 $("seek").oninput=e=>{A.currentTime=e.target.value/1000*(A.duration||0)};
 $("bar").onchange=e=>{bar=+e.target.value||240/P.bpm;grid();save()};
+$("bpm2").onchange=e=>{bar2=240/(+e.target.value||P.bpm2||240/bar);grid();save()};
 $("off").onchange=e=>{off=+e.target.value||0;grid();save()};
 $("reset").onclick=()=>{grid();save()};
 $("m").onclick=()=>{S=S.map(x=>+(x-.1).toFixed(3));save()};
